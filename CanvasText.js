@@ -87,7 +87,7 @@ var CanvasText = {
     },
 
     calculateRowWidth: function(context, object, text) {
-        return context.measureText(text).width + (object.paddingLeft + object.paddingRight);
+        return context.measureText(text).width + object.paddingLeft + object.paddingRight;
     },
 
     renderWordWrapRows: function(context, object, rows) {
@@ -190,9 +190,8 @@ var CanvasText = {
         rowContext.fillStyle = context.fillStyle;
         rowContext.textBaseline = context.textBaseline;
         rowContext.textAlign = object.align;
-
-
         rowContext.fillText(text, xPos, 0);
+
         return canvas;
     }
 
