@@ -49,7 +49,7 @@ var CanvasText = {
         context.textBaseline = 'hanging';
         context.fillStyle = object.color ? object.color : CanvasText.DEFAULT_FONT_COLOR;
 
-        CanvasText.resolvePadding(object);
+        this._padding = CanvasText.resolvePadding(object);
 
         CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
 
@@ -57,28 +57,26 @@ var CanvasText = {
     },
 
     resolvePadding: function(object) {
-        object.padding = (typeof object.padding !== 'undefined') ? object.padding : 0;
-        object.paddingLeft = (typeof object.paddingLeft !== 'undefined') ? object.paddingLeft : object.padding;
-        object.paddingRight = (typeof object.paddingRight !== 'undefined') ? object.paddingRight : object.padding;
-        object.paddingTop = (typeof object.paddingTop !== 'undefined') ? object.paddingTop : object.padding;
-        object.paddingBottom = (typeof object.paddingBottom !== 'undefined') ? object.paddingBottom : object.padding;
+      var padding = {};
+      var defaultPadding = (typeof object.padding !== 'undefined') ? object.padding : 0;
+      padding.left = (typeof object.paddingLeft !== 'undefined') ? object.paddingLeft : defaultPadding;
+      padding.right = (typeof object.paddingRight !== 'undefined') ? object.paddingRight : defaultPadding;
+      padding.top = (typeof object.paddingTop !== 'undefined') ? object.paddingTop : defaultPadding;
+      padding.bottom = (typeof object.paddingBottom !== 'undefined') ? object.paddingBottom : defaultPadding;
+      return padding;
     },
 
     makeWordWrapRows: function(context, object) {
         var words = object.text.split(/ /);
-        var spaceWidth = context.measureText(' ').width;
-        var rowWidth = CanvasText.calculateRowWidth(context, object, '');
         var rowWords = [];
         var rows = [];
         words.forEach(function(word) {
-            var width = context.measureText(word).width;
-            if (rowWidth + width >= context.canvas.width) {
-                rows.push(rowWords.join(' '));
-                rowWords = [];
-                rowWidth = CanvasText.calculateRowWidth(context, object, '');
-            }
-            rowWords.push(word);
-            rowWidth = CanvasText.calculateRowWidth(context, object, rowWords.join(' '));
+          var rowWidth = CanvasText.calculateRowWidth(context, object, rowWords.concat(word).join(' '));
+          if (rowWidth >= context.canvas.width && rowWords.length > 0) {
+            rows.push(rowWords.join(' '));
+            rowWords = [];
+          }
+          rowWords.push(word);
         });
         if (rowWords.length > 0) {
             rows.push(rowWords.join(' '));
@@ -87,24 +85,24 @@ var CanvasText = {
     },
 
     calculateRowWidth: function(context, object, text) {
-        return context.measureText(text).width + object.paddingLeft + object.paddingRight;
+        return context.measureText(text).width + this._padding.left + this._padding.right;
     },
 
     renderWordWrapRows: function(context, object, rows) {
         var lineHeight = object.lineHeight ? object.lineHeight : 1;
         var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
 
-        var rowX = object.paddingLeft;
+        var rowX = this._padding.left;
         if (object.align === 'right') {
-            rowX = context.canvas.width - object.paddingRight;
+            rowX = context.canvas.width - this._padding.right;
         }
         if (object.align === 'center') {
             rowX = context.canvas.width / 2;
         }
 
-        var rowY = object.paddingTop;
+        var rowY = this._padding.top;
         if (object.valign === 'bottom') {
-            rowY = (context.canvas.height - (rows.length * rowHeight)) - object.paddingBottom;
+            rowY = (context.canvas.height - (rows.length * rowHeight)) - this._padding.bottom;
         }
         if (object.valign === 'middle') {
             rowY = (context.canvas.height - (rows.length * rowHeight)) / 2;
