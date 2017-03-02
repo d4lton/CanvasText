@@ -21,7 +21,6 @@ var CanvasText = {
    *
    * @param context {CanvasRenderingContext2D} The canvas context to render text into
    * @param object {Object} The text object
-   * @param options {Object}
    *
    * Text Object has at least these properties:
    *
@@ -40,25 +39,19 @@ var CanvasText = {
    *
    * The canvas context you pass to drawText should have a width and height assigned.
    */
-  drawText: function(context, object, options) {
+  drawText: function(context, object) {
     var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
     var fontFamily = object.fontFamily ? object.fontFamily : CanvasText.DEFAULT_FONT_FAMILY;
-
-    options = (typeof options === 'object') ? options : {};
 
     context.save();
 
     context.font = fontSize + "pt '" + fontFamily + "'";
     context.textBaseline = 'hanging';
-    if (options.block) {
-      context.fillStyle = 'black';
-    } else {
-      context.fillStyle = object.color ? object.color : CanvasText.DEFAULT_FONT_COLOR;
-    }
+    context.fillStyle = object.color ? object.color : CanvasText.DEFAULT_FONT_COLOR;
 
     this._padding = CanvasText.resolvePadding(object);
 
-    CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object), options);
+    CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
 
     context.restore();
   },
@@ -95,7 +88,7 @@ var CanvasText = {
     return context.measureText(text).width + this._padding.left + this._padding.right;
   },
 
-  renderWordWrapRows: function(context, object, rows, options) {
+  renderWordWrapRows: function(context, object, rows) {
     var lineHeight = object.lineHeight ? object.lineHeight : 1;
     var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
 
@@ -116,29 +109,24 @@ var CanvasText = {
     }
 
     rows.forEach(function(row) {
-      var rowCanvas = CanvasText.makeWordWrapCanvas(context, object, rowX, rowHeight, row, options);
+      var rowCanvas = CanvasText.makeWordWrapCanvas(context, object, rowX, rowHeight, row);
       context.drawImage(rowCanvas, 0, rowY);
       rowY += rowCanvas.height;
     });
   },
 
-  makeWordWrapCanvas: function(context, object, xPos, height, text, options) {
+  makeWordWrapCanvas: function(context, object, xPos, height, text) {
     var canvas = document.createElement('canvas');
     var rowContext = canvas.getContext('2d');
 
     canvas.width = context.canvas.width;
     canvas.height = height;
 
-    if (options.block) {
-      rowContext.fillStyle = context.fillStyle;
-      rowContext.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-      rowContext.font = context.font;
-      rowContext.fillStyle = context.fillStyle;
-      rowContext.textBaseline = context.textBaseline;
-      rowContext.textAlign = object.align;
-      rowContext.fillText(text, xPos, 0);
-    }
+    rowContext.font = context.font;
+    rowContext.fillStyle = context.fillStyle;
+    rowContext.textBaseline = context.textBaseline;
+    rowContext.textAlign = object.align;
+    rowContext.fillText(text, xPos, 0);
     
     return canvas;
   },
