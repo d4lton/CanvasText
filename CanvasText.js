@@ -126,6 +126,12 @@ var CanvasText = {
     rowContext.fillStyle = context.fillStyle;
     rowContext.textBaseline = context.textBaseline;
     rowContext.textAlign = object.align;
+
+    rowContext.shadowColor = object.shadowColor;
+    rowContext.shadowOffsetX = object.shadowOffsetX;
+    rowContext.shadowOffsetY = object.shadowOffsetY;
+    rowContext.shadowBlur = object.shadowBlur;
+    
     rowContext.fillText(text, xPos, 0);
     
     return canvas;
