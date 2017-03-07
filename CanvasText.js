@@ -40,12 +40,9 @@ var CanvasText = {
    * The canvas context you pass to drawText should have a width and height assigned.
    */
   drawText: function(context, object) {
-    var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
-    var fontFamily = object.fontFamily ? object.fontFamily : CanvasText.DEFAULT_FONT_FAMILY;
-
     context.save();
-
-    context.font = fontSize + "pt '" + fontFamily + "'";
+    
+    context.font = CanvasText.resolveFont(object);
     context.textBaseline = 'hanging';
     context.fillStyle = object.color ? object.color : CanvasText.DEFAULT_FONT_COLOR;
 
@@ -54,6 +51,16 @@ var CanvasText = {
     CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
 
     context.restore();
+  },
+  
+  resolveFont: function(object) {
+    if (object.font) {
+      return object.font;
+    } else {
+      var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
+      var fontFamily = object.fontFamily ? object.fontFamily : CanvasText.DEFAULT_FONT_FAMILY;
+      return fontSize + "pt '" + fontFamily + "'";
+    }
   },
 
   resolvePadding: function(object) {
@@ -142,7 +149,7 @@ var CanvasText = {
     if (!CanvasText.fontHeightCache[context.font]) {
       switch (CanvasText.FONT_HEIGHT_METHOD) {
         case 'fontSize':
-          var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
+          var fontSize = parseInt(CanvasText.resolveFont(object));
           CanvasText.fontHeightCache[context.font] = fontSize * CanvasText.M_HEIGHT_FACTOR;
           break;
         case 'measureM':
@@ -170,7 +177,7 @@ var CanvasText = {
 
   canvasFontHeight: function(context, object) {
     var testString = 'Mjqye';
-    var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
+    var fontSize = parseInt(CanvasText.resolveFont(object));
     var canvas = document.createElement('canvas');
     canvas.height = fontSize * 2;
     canvas.width = context.measureText(testString).width;
