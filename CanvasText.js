@@ -135,13 +135,29 @@ var CanvasText = {
     rowContext.textAlign = object.align;
 
     rowContext.shadowColor = object.shadowColor;
-    rowContext.shadowOffsetX = object.shadowOffsetX;
-    rowContext.shadowOffsetY = object.shadowOffsetY;
     rowContext.shadowBlur = object.shadowBlur;
+    
+    var offset = CanvasText.resolveShadowOffset(object);
+    rowContext.shadowOffsetX = offset.x;
+    rowContext.shadowOffsetY = offset.y;
     
     rowContext.fillText(text, xPos, 0);
     
     return canvas;
+  },
+  
+  resolveShadowOffset: function(object) {
+    if (object.shadowOffset) {
+      return {
+        x: object.shadowOffset,
+        y: object.shadowOffset
+      }
+    } else {
+      return {
+        x: object.shadowOffsetX,
+        y: object.shadowOffsetY
+      }
+    }
   },
   
   fontHeight: function(context, object) {
