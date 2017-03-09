@@ -42,11 +42,18 @@ var CanvasText = {
   drawText: function(context, object) {
     context.save();
     
+    this._padding = CanvasText.resolvePadding(object);
+
     context.font = CanvasText.resolveFont(object);
     context.textBaseline = 'hanging';
     context.fillStyle = object.color ? object.color : CanvasText.DEFAULT_FONT_COLOR;
+    context.textAlign = object.align;
 
-    this._padding = CanvasText.resolvePadding(object);
+    var offset = CanvasText.resolveShadowOffset(object);
+    context.shadowColor = object.shadowColor;
+    context.shadowBlur = object.shadowBlur;
+    context.shadowOffsetX = offset.x;
+    context.shadowOffsetY = offset.y;
 
     CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
 
@@ -116,9 +123,12 @@ var CanvasText = {
     }
 
     rows.forEach(function(row) {
+      /*
       var rowCanvas = CanvasText.makeWordWrapCanvas(context, object, rowX, rowHeight, row);
       context.drawImage(rowCanvas, 0, rowY);
-      rowY += rowCanvas.height;
+      */
+      context.fillText(row, rowX, rowY);
+      rowY += rowHeight;
     });
   },
 
