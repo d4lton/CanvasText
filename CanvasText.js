@@ -46,7 +46,7 @@ var CanvasText = {
 
     context.font = CanvasText.resolveFont(object);
     context.textBaseline = 'hanging';
-    context.fillStyle = object.color ? object.color : CanvasText.DEFAULT_FONT_COLOR;
+    context.fillStyle = this.resolveColor(object.color, object.alpha);
     context.textAlign = object.align;
 
     var offset = CanvasText.resolveShadowOffset(object);
@@ -59,7 +59,7 @@ var CanvasText = {
 
     context.restore();
   },
-  
+
   renderWordWrapRows: function(context, object, rows) {
     var lineHeight = (typeof object.lineHeight !== 'undefined') ? object.lineHeight : 1;
     var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
@@ -111,6 +111,22 @@ var CanvasText = {
       var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
       var fontFamily = object.fontFamily ? object.fontFamily : CanvasText.DEFAULT_FONT_FAMILY;
       return fontSize + "pt '" + fontFamily + "'";
+    }
+  },
+
+  resolveColor: function(color, alpha) {
+    if (typeof alpha !== 'undefined') {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+      return 'rgba(' +
+        parseInt(result[1], 16) +
+        ', ' +
+        parseInt(result[2], 16) +
+        ', ' +
+        parseInt(result[3], 16) +
+        ', ' +
+        alpha + ')';
+    } else {
+      return color;
     }
   },
 
