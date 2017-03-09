@@ -60,24 +60,30 @@ var CanvasText = {
     context.restore();
   },
   
-  resolveFont: function(object) {
-    if (object.font) {
-      return object.font;
-    } else {
-      var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
-      var fontFamily = object.fontFamily ? object.fontFamily : CanvasText.DEFAULT_FONT_FAMILY;
-      return fontSize + "pt '" + fontFamily + "'";
-    }
-  },
+  renderWordWrapRows: function(context, object, rows) {
+    var lineHeight = (typeof object.lineHeight !== 'undefined') ? object.lineHeight : 1;
+    var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
 
-  resolvePadding: function(object) {
-    var padding = {};
-    var defaultPadding = (typeof object.padding !== 'undefined') ? object.padding : 0;
-    padding.left = (typeof object.paddingLeft !== 'undefined') ? object.paddingLeft : defaultPadding;
-    padding.right = (typeof object.paddingRight !== 'undefined') ? object.paddingRight : defaultPadding;
-    padding.top = (typeof object.paddingTop !== 'undefined') ? object.paddingTop : defaultPadding;
-    padding.bottom = (typeof object.paddingBottom !== 'undefined') ? object.paddingBottom : defaultPadding;
-    return padding;
+    var rowX = this._padding.left;
+    if (object.align === 'right') {
+      rowX = context.canvas.width - this._padding.right;
+    }
+    if (object.align === 'center') {
+      rowX = context.canvas.width / 2;
+    }
+
+    var rowY = this._padding.top;
+    if (object.valign === 'bottom') {
+      rowY = (context.canvas.height - (rows.length * rowHeight)) - this._padding.bottom;
+    }
+    if (object.valign === 'middle') {
+      rowY = (context.canvas.height - (rows.length * rowHeight)) / 2;
+    }
+
+    rows.forEach(function(row) {
+      context.fillText(row, rowX, rowY);
+      rowY += rowHeight;
+    });
   },
 
   makeWordWrapRows: function(context, object) {
@@ -98,64 +104,26 @@ var CanvasText = {
     return rows;
   },
 
-  calculateRowWidth: function(context, object, text) {
-    return context.measureText(text).width + this._padding.left + this._padding.right;
+  resolveFont: function(object) {
+    if (object.font) {
+      return object.font;
+    } else {
+      var fontSize = object.fontSize ? object.fontSize : CanvasText.DEFAULT_FONT_SIZE;
+      var fontFamily = object.fontFamily ? object.fontFamily : CanvasText.DEFAULT_FONT_FAMILY;
+      return fontSize + "pt '" + fontFamily + "'";
+    }
   },
 
-  renderWordWrapRows: function(context, object, rows) {
-    var lineHeight = object.lineHeight ? object.lineHeight : 1;
-    var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
-
-    var rowX = this._padding.left;
-    if (object.align === 'right') {
-      rowX = context.canvas.width - this._padding.right;
-    }
-    if (object.align === 'center') {
-      rowX = context.canvas.width / 2;
-    }
-
-    var rowY = this._padding.top;
-    if (object.valign === 'bottom') {
-      rowY = (context.canvas.height - (rows.length * rowHeight)) - this._padding.bottom;
-    }
-    if (object.valign === 'middle') {
-      rowY = (context.canvas.height - (rows.length * rowHeight)) / 2;
-    }
-
-    rows.forEach(function(row) {
-      /*
-      var rowCanvas = CanvasText.makeWordWrapCanvas(context, object, rowX, rowHeight, row);
-      context.drawImage(rowCanvas, 0, rowY);
-      */
-      context.fillText(row, rowX, rowY);
-      rowY += rowHeight;
-    });
+  resolvePadding: function(object) {
+    var padding = {};
+    var defaultPadding = (typeof object.padding !== 'undefined') ? object.padding : 0;
+    padding.left = (typeof object.paddingLeft !== 'undefined') ? object.paddingLeft : defaultPadding;
+    padding.right = (typeof object.paddingRight !== 'undefined') ? object.paddingRight : defaultPadding;
+    padding.top = (typeof object.paddingTop !== 'undefined') ? object.paddingTop : defaultPadding;
+    padding.bottom = (typeof object.paddingBottom !== 'undefined') ? object.paddingBottom : defaultPadding;
+    return padding;
   },
 
-  makeWordWrapCanvas: function(context, object, xPos, height, text) {
-    var canvas = document.createElement('canvas');
-    var rowContext = canvas.getContext('2d');
-
-    canvas.width = context.canvas.width;
-    canvas.height = height;
-
-    rowContext.font = context.font;
-    rowContext.fillStyle = context.fillStyle;
-    rowContext.textBaseline = context.textBaseline;
-    rowContext.textAlign = object.align;
-
-    rowContext.shadowColor = object.shadowColor;
-    rowContext.shadowBlur = object.shadowBlur;
-    
-    var offset = CanvasText.resolveShadowOffset(object);
-    rowContext.shadowOffsetX = offset.x;
-    rowContext.shadowOffsetY = offset.y;
-    
-    rowContext.fillText(text, xPos, 0);
-    
-    return canvas;
-  },
-  
   resolveShadowOffset: function(object) {
     if (object.shadowOffset) {
       return {
@@ -169,7 +137,11 @@ var CanvasText = {
       }
     }
   },
-  
+
+  calculateRowWidth: function(context, object, text) {
+    return context.measureText(text).width + this._padding.left + this._padding.right;
+  },
+
   fontHeight: function(context, object) {
     // why oh why does context.measureText() not return height?
     if (!CanvasText.fontHeightCache[context.font]) {
@@ -205,7 +177,7 @@ var CanvasText = {
     var testString = 'Mjqye';
     var fontSize = parseInt(CanvasText.resolveFont(object));
     var canvas = document.createElement('canvas');
-    canvas.height = fontSize * 2;
+    canvas.height = fontSize * 5;
     canvas.width = context.measureText(testString).width;
     var fontContext = canvas.getContext('2d');
     fontContext.font = context.font;
