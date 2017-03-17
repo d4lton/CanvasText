@@ -56,9 +56,11 @@ var CanvasText = {
     context.shadowOffsetX = offset.x;
     context.shadowOffsetY = offset.y;
 
-    CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
+    var area = CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
 
     context.restore();
+
+    return area;
   },
 
   renderWordWrapRows: function(context, object, rows) {
@@ -80,11 +82,15 @@ var CanvasText = {
     if (object.valign === 'middle') {
       rowY = (context.canvas.height - (rows.length * rowHeight)) / 2;
     }
-    
+
+    var totalArea = 0;
     rows.forEach(function(row) {
       context.fillText(row, rowX, rowY - CanvasText.fontOffsetCache[context.font]);
       rowY += rowHeight;
+      totalArea += (rowHeight * CanvasText.calculateRowWidth(context, object, row));
     });
+
+    return totalArea;
   },
 
   makeWordWrapRows: function(context, object) {
