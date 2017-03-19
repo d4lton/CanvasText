@@ -8,6 +8,7 @@
 var CanvasText = {
 
   M_HEIGHT_FACTOR: 1.2,
+  DEFAULT_LINE_HEIGHT: 1.1,
   DEFAULT_FONT_SIZE: 12,
   DEFAULT_FONT_FAMILY: 'Comic Sans MS',
   DEFAULT_FONT_COLOR: '#000000',
@@ -64,7 +65,7 @@ var CanvasText = {
   },
 
   renderWordWrapRows: function(context, object, rows) {
-    var lineHeight = (typeof object.lineHeight !== 'undefined') ? object.lineHeight : 1;
+    var lineHeight = (typeof object.lineHeight !== 'undefined') ? object.lineHeight : CanvasText.DEFAULT_LINE_HEIGHT;
     var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
 
     var rowX = this._padding.left;
