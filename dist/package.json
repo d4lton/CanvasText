@@ -1,0 +1,19 @@
+{
+  "name": "CanvasText",
+  "version": "1.0.0",
+  "description": "A JavaScript utility object to draw word-wrapped text into an HTML canvas",
+  "homepage": "https://github.com/d4lton/CanvasText",
+  "repository": "d4lton/CanvasText",
+  "author": "Dana Basken <dbasken@gmail.com>",
+  "contributors": [
+    "Konstantin Tarkus <hello@tarkus.me>",
+    "Vladimir Kutepov <frenzzy.man@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [],
+  "main": "CanvasText.js",
+  "jsnext:main": "CanvasText.es.js",
+  "dependencies": {
+    "babel-runtime": "^6.11.6"
+  }
+}
