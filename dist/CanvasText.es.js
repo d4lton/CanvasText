@@ -8,7 +8,7 @@
 var CanvasText = {
 
   M_HEIGHT_FACTOR: 1.2,
-  DEFAULT_LINE_HEIGHT: 1.1,
+  DEFAULT_LINE_HEIGHT: 1.2,
   DEFAULT_FONT_SIZE: 12,
   DEFAULT_FONT_FAMILY: 'Comic Sans MS',
   DEFAULT_FONT_COLOR: '#000000',
@@ -66,7 +66,8 @@ var CanvasText = {
 
   renderWordWrapRows: function renderWordWrapRows(context, object, rows) {
     var lineHeight = typeof object.lineHeight !== 'undefined' ? object.lineHeight : CanvasText.DEFAULT_LINE_HEIGHT;
-    var rowHeight = CanvasText.fontHeight(context, object) * lineHeight;
+    var fontHeight = CanvasText.fontHeight(context, object);
+    var rowHeight = fontHeight * lineHeight;
 
     var rowX = this._padding.left;
     if (object.align === 'right') {
@@ -87,36 +88,48 @@ var CanvasText = {
     var totalArea = 0;
     rows.forEach(function (row) {
       var width = CanvasText.calculateRowWidth(context, object, row);
-      context.fillText(row, rowX, rowY - CanvasText.fontOffsetCache[context.font]);
-      CanvasText.renderDecoration(context, object, rowX, rowY, rowHeight, width);
-      totalArea += rowHeight * width;
+      context.fillText(row, rowX, rowY - CanvasText.fontOffsetCache[context.font] + (rowHeight - fontHeight) / 2);
+      CanvasText.renderDecoration(context, object, rowX, rowY, fontHeight, rowHeight, width);
+      totalArea += fontHeight * width;
       rowY += rowHeight;
     });
 
     return totalArea;
   },
 
-  renderDecoration: function renderDecoration(context, object, x, y, height, width) {
+  renderDecoration: function renderDecoration(context, object, x, y, height, rowHeight, width) {
     if (object.decoration) {
+
       context.save();
+
       context.strokeStyle = this.resolveColor(object.color, object.alpha);
-      context.lineWidth = Math.max(1, height / 20);
+      context.lineWidth = Math.max(1, height / 10);
       context.lineCap = 'round';
+
+      var lineWidth = width - (this._padding.left + this._padding.right);
+
       var lineX = x;
       if (object.align === 'right') {
-        lineX = x - width + this._padding.right;
+        lineX = x - lineWidth;
       }
       if (object.align === 'center') {
-        lineX = x - width / 2;
+        lineX = x - lineWidth / 2;
       }
+
       var lineY = y + height;
-      if (object.decoration === 'strikethrough') {
-        lineY = y + height / 2;
+      if (object.decoration === 'underline') {
+        lineY += Math.min(10, height / 2);
       }
+      if (object.decoration === 'strikethrough') {
+        lineY = y + rowHeight / 2;
+        lineY += Math.min(8, context.lineWidth * 2);
+      }
+
       context.beginPath();
       context.moveTo(lineX, lineY);
-      context.lineTo(lineX + width, lineY);
+      context.lineTo(lineX + lineWidth, lineY);
       context.stroke();
+
       context.restore();
     }
   },
