@@ -86,12 +86,39 @@ var CanvasText = {
 
     var totalArea = 0;
     rows.forEach(function(row) {
+      var width = CanvasText.calculateRowWidth(context, object, row);
       context.fillText(row, rowX, rowY - CanvasText.fontOffsetCache[context.font]);
+      CanvasText.renderDecoration(context, object, rowX, rowY, rowHeight, width);
+      totalArea += (rowHeight * width);
       rowY += rowHeight;
-      totalArea += (rowHeight * CanvasText.calculateRowWidth(context, object, row));
     });
 
     return totalArea;
+  },
+  
+  renderDecoration: function(context, object, x, y, height, width) {
+    if (object.decoration) {
+      context.save();
+      context.strokeStyle = this.resolveColor(object.color, object.alpha);
+      context.lineWidth = Math.max(1, height / 20);
+      context.lineCap = 'round';
+      var lineX = x;
+      if (object.align === 'right') {
+        lineX = x - width + this._padding.right;
+      }
+      if (object.align === 'center') {
+        lineX = x - (width / 2);
+      }
+      var lineY = y + height;
+      if (object.decoration === 'strikethrough') {
+        lineY = y + (height / 2);
+      }
+      context.beginPath();
+      context.moveTo(lineX, lineY);
+      context.lineTo(lineX + width, lineY);
+      context.stroke();
+      context.restore();
+    }
   },
 
   makeWordWrapRows: function(context, object) {
