@@ -102,6 +102,8 @@ var CanvasText = {
 
       context.save();
 
+      context.shadowBlur = 0;
+      context.shadowColor = 'rgba(0, 0, 0, 0)';
       context.strokeStyle = this.resolveColor(object.color, object.alpha);
       context.lineWidth = Math.max(1, height / 10);
       context.lineCap = 'round';
