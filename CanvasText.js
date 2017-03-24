@@ -98,7 +98,7 @@ var CanvasText = {
   },
   
   renderDecoration: function(context, object, x, y, height, rowHeight, width) {
-    if (object.decoration) {
+    if (object.decoration && object.decoration !== 'none') {
 
       context.save();
 
