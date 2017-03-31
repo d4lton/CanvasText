@@ -18,6 +18,7 @@ var CanvasText = {
 
   fontHeightCache: {},
   fontOffsetCache: {},
+  fontDescenderCache: {},
 
   /**
    * Draws word-wrapped text on a canvas, taking into account font size, top/right/bottom/left padding,
@@ -71,6 +72,8 @@ var CanvasText = {
     var fontHeight = CanvasText.fontHeight(context, object);
     var rowHeight = fontHeight * lineHeight;
 
+    var descenderHeight = CanvasText.fontDescenderCache[context.font] - CanvasText.fontHeightCache[context.font];
+
     var rowX = this._padding.left;
     if (object.align === 'right') {
       rowX = context.canvas.width - this._padding.right;
@@ -81,8 +84,7 @@ var CanvasText = {
 
     var rowY = this._padding.top;
     if (object.valign === 'bottom') {
-      rowY = context.canvas.height - (rows.length - 1) * rowHeight - this._padding.bottom;
-      context.textBaseline = 'alphabetic';
+      rowY = context.canvas.height - rows.length * rowHeight - descenderHeight - this._padding.bottom;
     }
     if (object.valign === 'middle') {
       rowY = (context.canvas.height - rows.length * rowHeight) / 2;
@@ -237,19 +239,23 @@ var CanvasText = {
   },
 
   canvasFontHeight: function canvasFontHeight(context, object) {
-    var testString = 'M';
+    CanvasText.fontDescenderCache[context.font] = this.canvasFontHeightForText(context, object, 'Mqypgj');
+    return this.canvasFontHeightForText(context, object, 'M');
+  },
+
+  canvasFontHeightForText: function canvasFontHeightForText(context, object, text) {
     var offset = 10;
     var fontSize = parseInt(CanvasText.resolveFont(object));
 
     var canvas = document.createElement('canvas');
     canvas.height = fontSize * 5;
-    canvas.width = context.measureText(testString).width * 2;
+    canvas.width = context.measureText(text).width * 2;
 
     var fontContext = canvas.getContext('2d');
     fontContext.font = context.font;
     fontContext.textAlign = 'left';
     fontContext.textBaseline = 'top';
-    fontContext.fillText(testString, offset, offset);
+    fontContext.fillText(text, offset, offset);
 
     var data = fontContext.getImageData(0, 0, canvas.width, canvas.height).data;
 
