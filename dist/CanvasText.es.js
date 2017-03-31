@@ -47,9 +47,9 @@ var CanvasText = {
     this._padding = CanvasText.resolvePadding(object);
 
     context.font = CanvasText.resolveFont(object);
-    context.textBaseline = 'top';
     context.fillStyle = this.resolveColor(object.color, object.alpha);
     context.textAlign = object.align;
+    context.textBaseline = 'top';
 
     var offset = CanvasText.resolveShadowOffset(object);
     context.shadowColor = object.shadowColor;
@@ -79,7 +79,8 @@ var CanvasText = {
 
     var rowY = this._padding.top;
     if (object.valign === 'bottom') {
-      rowY = context.canvas.height - rows.length * rowHeight - this._padding.bottom;
+      rowY = context.canvas.height - (rows.length - 1) * rowHeight - this._padding.bottom;
+      context.textBaseline = 'alphabetic';
     }
     if (object.valign === 'middle') {
       rowY = (context.canvas.height - rows.length * rowHeight) / 2;
