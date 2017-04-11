@@ -8,7 +8,7 @@
 var CanvasText = {
 
   M_HEIGHT_FACTOR: 1.2,
-  DEFAULT_LINE_HEIGHT: 1.2,
+  DEFAULT_LINE_HEIGHT: 1.5,
   DEFAULT_FONT_SIZE: 12,
   DEFAULT_FONT_FAMILY: 'Comic Sans MS',
   DEFAULT_FONT_COLOR: '#000000',
@@ -123,7 +123,7 @@ var CanvasText = {
 
       var lineY = y + height;
       if (object.decoration === 'underline') {
-        lineY += Math.min(10, height / 2);
+        lineY += Math.min(20, height / 2);
       }
       if (object.decoration === 'strikethrough') {
         lineY = y + rowHeight / 2;
