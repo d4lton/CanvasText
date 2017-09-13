@@ -44,7 +44,7 @@ var CanvasText = {
    */
   drawText: function(context, object) {
     context.save();
-    
+
     this._padding = CanvasText.resolvePadding(object);
 
     context.font = CanvasText.resolveFont(object);
