@@ -58,74 +58,11 @@ var CanvasText = {
     context.shadowOffsetX = offset.x;
     context.shadowOffsetY = offset.y;
 
-    var area;
-    if (object.align === 'fit') {
-      area = CanvasText.renderTextToFit(context, object);
-    } else {
-      area = CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
-    }
-
-    context.restore();
-
-    return area;
-  },
-
-  renderTextToFit: function renderTextToFit(context, object) {
-    var originalFont = object.font;
-    if (object._fitInfo && object._fitInfo.width === object.width && object._fitInfo.height === object.height) {
-      object.font = object._fitInfo.font;
-      context.font = object._fitInfo.font;
-    } else {
-
-      var font = CanvasText.getFitFont(context, object);
-      object.font = font;
-      context.font = font;
-      CanvasText.createPrivateProperty(object, '_fitInfo', { width: object.width, height: object.height, font: context.font });
-    }
     var area = CanvasText.renderWordWrapRows(context, object, CanvasText.makeWordWrapRows(context, object));
-    object.font = originalFont;
-    return area;
-  },
-
-  getFitFont: function getFitFont(context, object) {
-    var font = object.font;
-    var width = parseInt(object.width);
-    var fontSize = parseInt(object.height);
-    var fontFamily = CanvasText.resolveFontFamily(object);
-
-    context.save();
-
-    // quickly find an approximate font size    
-    var lastFontSize = fontSize;
-    do {
-      lastFontSize = fontSize;
-      fontSize = parseInt(fontSize / 2);
-      context.font = fontSize + 'px ' + fontFamily;
-    } while (CanvasText.calculateRowWidth(context, object, object.text) > width && fontSize > 0);
-
-    // using the approximate, find specific font size (this could be replaced with a binary search?)
-    fontSize = lastFontSize;
-    do {
-      fontSize--;
-      context.font = fontSize + 'px ' + fontFamily;
-    } while (CanvasText.calculateRowWidth(context, object, object.text) > width && fontSize > 0);
-
-    font = context.font; // this is the largest font that will fit perfectly in height and width of text box
 
     context.restore();
 
-    return font;
-  },
-
-  resolveFontFamily: function resolveFontFamily(object) {
-    if (object.font) {
-      var matches = object.font.match(/(.+?)pt\s+(.+)/);
-      if (matches) {
-        return matches[2];
-      }
-    } else {
-      return object.fontFamily;
-    }
+    return area;
   },
 
   renderWordWrapRows: function renderWordWrapRows(context, object, rows) {
@@ -339,10 +276,6 @@ var CanvasText = {
     CanvasText.fontOffsetCache[context.font] = first - offset;
 
     return last - first;
-  },
-
-  createPrivateProperty: function createPrivateProperty(object, property, value) {
-    Object.defineProperty(object, property, { enumerable: false, configurable: true, writable: true, value: value });
   }
 
 };
